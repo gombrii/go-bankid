@@ -1,8 +1,15 @@
-package bankid
+package client
 
-//TODO: Dessa behöver inga json-taggar
+import "fmt"
 
 type AuthResp struct {
+	OrderRef       string `json:"orderRef"`
+	AutoStartToken string `json:"autoStartToken"`
+	QRStartToken   string `json:"qrStartToken"`
+	QRStartSecret  string `json:"qrStartSecret"`
+}
+
+type SignResp struct {
 	OrderRef       string `json:"orderRef"`
 	AutoStartToken string `json:"autoStartToken"`
 	QRStartToken   string `json:"qrStartToken"`
@@ -24,4 +31,13 @@ type CompletionData struct {
 	Signature       string `json:"signature"`    //TODO: []byte istället?
 	OcspResponse    string `json:"ocspResponse"` //TODO: OCSPResponse istället?
 	Risk            string `json:"risk"`
+}
+
+type Err400 struct {
+	ErrorCode string `json:"errorCode"`
+	Details   string `json:"details"`
+}
+
+func (err Err400) Error() string {
+	return fmt.Sprintf("errorCode=%s, details=%s", err.ErrorCode, err.Details)
 }

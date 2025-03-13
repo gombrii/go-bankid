@@ -41,3 +41,8 @@ const (
 	RFA22_ENG  = "Something went wrong. Please try again."
 	RFA23_ENG  = "Take a photo of, and scan, you ID document with the BankID app."
 )
+
+const (
+	ProdURL = "PLACEHOLDER_PROD_URL"
+	TestURL = "PLACEHOLDER_TEST_URL"
+)

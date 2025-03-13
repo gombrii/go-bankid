@@ -1,4 +1,34 @@
-package client
+package bankid
+
+const (
+	AppIdentifier    = "appIdentifier"
+	DeviceOS         = "deviceOS"
+	DeviceIdentifier = "deviceIdentifier"
+	DeviceModelName  = "deviceModelName"
+	ReferringDomain  = "referringDomain"
+	UserAgent        = "userAgent"
+)
+
+type AuthOpts struct {
+	App                   *App         `json:"app,omitempty"`
+	ReturnRisk            bool         `json:"returnRisk,omitempty"`
+	ReturnURL             string       `json:"returnURL,omitempty"`
+	UserNonVisibleData    string       `json:"userNonVisibleData,omitempty"`
+	UserVisibleData       string       `json:"userVisibleData,omitempty"`
+	UserVisibleDataFormat string       `json:"userVisibleDataFormat,omitempty"`
+	Web                   *Web         `json:"web,omitempty"`
+	Requirement           *Requirement `json:"requirement,omitempty"`
+}
+
+type SignOpts struct {
+	App                   *App         `json:"app,omitempty"`
+	ReturnRisk            bool         `json:"returnRisk,omitempty"`
+	ReturnURL             string       `json:"returnURL,omitempty"`
+	UserNonVisibleData    string       `json:"userNonVisibleData,omitempty"`
+	UserVisibleDataFormat string       `json:"userVisibleDataFormat,omitempty"`
+	Web                   *Web         `json:"web,omitempty"`
+	Requirement           *Requirement `json:"requirement,omitempty"`
+}
 
 type App struct {
 	AppIdentifier    string `json:"AppIdentifier,omitempty"`
@@ -21,7 +51,7 @@ type Requirement struct {
 	PinCode             bool     `json:"pinCode,omitempty"`
 }
 
-type AuthReq struct {
+type authReq struct {
 	EndUserIP             string       `json:"endUserIp"`
 	App                   *App         `json:"app,omitempty"`
 	ReturnRisk            bool         `json:"returnRisk,omitempty"`
@@ -33,22 +63,22 @@ type AuthReq struct {
 	Requirement           *Requirement `json:"requirement,omitempty"`
 }
 
-type SignReq struct {
+type signReq struct {
 	EndUserIP             string       `json:"endUserIp"`
 	App                   *App         `json:"app,omitempty"`
 	ReturnRisk            bool         `json:"returnRisk,omitempty"` //TODO: Lite allmän todo här. Bör strängar och booleaener som inte är obligatoriska vara pekare???
 	ReturnURL             string       `json:"returnURL,omitempty"`
-	UserNonVisibleData    string       `json:"userNonVisibleData,omitempty"` //TODO: Någon av dessa är tvingande och bör inte ha omitempty
-	UserVisibleData       string       `json:"userVisibleData,omitempty"`
+	UserNonVisibleData    string       `json:"userNonVisibleData,omitempty"`
+	UserVisibleData       string       `json:"userVisibleData"`
 	UserVisibleDataFormat string       `json:"userVisibleDataFormat,omitempty"`
 	Web                   *Web         `json:"web,omitempty"`
 	Requirement           *Requirement `json:"requirement,omitempty"`
 }
 
-type CollectReq struct {
+type collectReq struct {
 	OrderRef string `json:"orderRef"`
 }
 
-type CancelReq struct {
+type cancelReq struct {
 	OrderRef string `json:"orderRef"`
 }

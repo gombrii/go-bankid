@@ -1,14 +1,5 @@
 package bankid
 
-const (
-	AppIdentifier    = "appIdentifier"
-	DeviceOS         = "deviceOS"
-	DeviceIdentifier = "deviceIdentifier"
-	DeviceModelName  = "deviceModelName"
-	ReferringDomain  = "referringDomain"
-	UserAgent        = "userAgent"
-)
-
 type AuthOpts struct {
 	App                   *App         `json:"app,omitempty"`
 	ReturnRisk            bool         `json:"returnRisk,omitempty"`

@@ -12,9 +12,9 @@ import (
 	"net/http"
 )
 
-type Client struct {
-	HTTP *http.Client
-	URL  string
+type BankIDClient struct {
+	http *http.Client
+	url  string
 }
 
 type Config struct {
@@ -23,10 +23,10 @@ type Config struct {
 	URL        string
 }
 
-func New(cfg Config) (Client, error) { //TODO: Denna är nog halvfärdig
+func New(cfg Config) (BankIDClient, error) { //TODO: Denna är nog halvfärdig
 	certPool := x509.NewCertPool()
 	if ok := certPool.AppendCertsFromPEM(cfg.CA); !ok {
-		return Client{}, errors.New("error parsing CA cert from PEM")
+		return BankIDClient{}, errors.New("error parsing CA cert from PEM")
 	}
 
 	client := http.Client{
@@ -41,13 +41,13 @@ func New(cfg Config) (Client, error) { //TODO: Denna är nog halvfärdig
 		},
 	}
 
-	return Client{
-		HTTP: &client,
-		URL:  cfg.URL,
+	return BankIDClient{
+		http: &client,
+		url:  cfg.URL,
 	}, nil
 }
 
-func (c Client) Auth(ctx context.Context, endUserIP string, opts *AuthOpts) (AuthResp, error) {
+func (c BankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts) (AuthResp, error) {
 	//TODO: Glöm inte validering här!! :)
 
 	if opts == nil {
@@ -66,20 +66,16 @@ func (c Client) Auth(ctx context.Context, endUserIP string, opts *AuthOpts) (Aut
 		Requirement:           opts.Requirement,
 	}
 
-	httpResp, err := c.sendReq(ctx, fmt.Sprint(c.URL, "%s/rp/v6.0/auth"), req)
-	if err != nil {
-		return AuthResp{}, fmt.Errorf("bankid: %v", err)
-	}
-
 	resp := AuthResp{}
-	if err := unmarshalResp(httpResp, resp); err != nil {
+	err := c.send(ctx, fmt.Sprint(c.url, "/rp/v6.0/auth"), req, resp)
+	if err != nil {
 		return AuthResp{}, fmt.Errorf("bankid: %v", err)
 	}
 
 	return resp, nil
 }
 
-func (c Client) Sign(ctx context.Context, endUserIP string, userVisibleData string, opts *SignOpts) (SignResp, error) {
+func (c BankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleData string, opts *SignOpts) (SignResp, error) {
 	//TODO: Glöm inte validerin här!! :)
 
 	if opts == nil {
@@ -98,75 +94,73 @@ func (c Client) Sign(ctx context.Context, endUserIP string, userVisibleData stri
 		Requirement:           opts.Requirement,
 	}
 
-	httpResp, err := c.sendReq(ctx, fmt.Sprint(c.URL, "/rp/v6.0/sign"), req)
-	if err != nil {
-		return SignResp{}, fmt.Errorf("bankid: %v", err)
-	}
-
 	resp := SignResp{}
-	if err := unmarshalResp(httpResp, resp); err != nil {
+	err := c.send(ctx, fmt.Sprint(c.url, "/rp/v6.0/sign"), req, resp)
+	if err != nil {
 		return SignResp{}, fmt.Errorf("bankid: %v", err)
 	}
 
 	return resp, nil
 }
 
-func (c Client) Payment() {
+func (c BankIDClient) Payment() {
 	panic("UNIMPLEMENTED")
 }
 
-func (c Client) PhoneAuth() {
+func (c BankIDClient) PhoneAuth() {
 	panic("UNIMPLEMENTED")
 }
 
-func (c Client) PhoneSign() {
+func (c BankIDClient) PhoneSign() {
 	panic("UNIMPLEMENTED")
 }
 
-func (c Client) Collect(ctx context.Context, orderRef string) (CollectResp, error) {
+func (c BankIDClient) Collect(ctx context.Context, orderRef string) (CollectResp, error) {
 	//TODO: Glöm inte validerin här!! :)
-	httpResp, err := c.sendReq(ctx, fmt.Sprint(c.URL, "/rp/v6.0/collect"), collectReq{OrderRef: orderRef})
-	if err != nil {
-		return CollectResp{}, fmt.Errorf("bankid: %v", err)
-	}
 
 	resp := CollectResp{}
-	if err := unmarshalResp(httpResp, resp); err != nil {
+	err := c.send(ctx, fmt.Sprint(c.url, "/rp/v6.0/collect"), collectReq{OrderRef: orderRef}, resp)
+	if err != nil {
 		return CollectResp{}, fmt.Errorf("bankid: %v", err)
 	}
 
 	return resp, nil
 }
 
-func (c Client) Cancel(ctx context.Context, orderRef string) error {
+func (c BankIDClient) Cancel(ctx context.Context, orderRef string) error {
 	//TODO: Glöm inte validerin här!! :)
-	httpResp, err := c.sendReq(ctx, fmt.Sprint(c.URL, "/rp/v6.0/cancel"), cancelReq{OrderRef: orderRef})
-	if err != nil {
-		return fmt.Errorf("bankid: %v", err)
-	}
 
-	resp := CollectResp{}
-	if err := unmarshalResp(httpResp, resp); err != nil {
+	err := c.send(ctx, fmt.Sprint(c.url, "/rp/v6.0/cancel"), cancelReq{OrderRef: orderRef}, nil)
+	if err != nil {
 		return fmt.Errorf("bankid: %v", err)
 	}
 
 	return nil
 }
 
-func (c Client) sendReq(ctx context.Context, url string, req any) (*http.Response, error) { //TODO: Slå ihop sendReq och unmarshalResp????
-	body, err := json.Marshal(req)
+func (c BankIDClient) send(ctx context.Context, url string, req any, resp any) error {
+	httpResp, err := sendReq(ctx, c.http, url, req)
+	if err != nil {
+		return err
+	}
+
+	return unmarshalResp(httpResp, resp)
+}
+
+func sendReq(ctx context.Context, client *http.Client, url string, req any) (*http.Response, error) {
+	reqBody, err := json.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("marshalling request body: %v", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(body)) //TODO: NewReader eller NewBuffer?
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(reqBody))
 	if err != nil {
 		return nil, fmt.Errorf("preparing request: %v", err)
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.HTTP.Do(httpReq)
+	resp, err := client.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("sending request: %v", err)
 	}
@@ -174,9 +168,8 @@ func (c Client) sendReq(ctx context.Context, url string, req any) (*http.Respons
 	return resp, nil
 }
 
-// TODO: Kontrollera att alla anrops response kan använda denna funktion. Det hänger på att alla har samma format på fel-responsen (>= 400)
-func unmarshalResp(resp *http.Response, dst any) error { //TODO: Slå ihop sendReq och unmarshalResp????
-	body, err := io.ReadAll(resp.Body)
+func unmarshalResp(resp *http.Response, dst any) error {
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("reading response body: %v", err)
 	}
@@ -184,15 +177,17 @@ func unmarshalResp(resp *http.Response, dst any) error { //TODO: Slå ihop sendR
 
 	switch {
 	case resp.StatusCode == 400:
-		respErr := Err400{}
-		if err = json.Unmarshal(body, &respErr); err != nil {
+		respErr := err400{}
+		if err = json.Unmarshal(respBody, &respErr); err != nil {
 			return fmt.Errorf("unmarshalling response body: %v", err)
 		}
 		return respErr
 	case resp.StatusCode > 400:
-		return errors.New(string(body))
+		return errors.New(string(respBody))
+	case resp.ContentLength == 0: // for cancel response
+		return nil
 	default:
-		if err = json.Unmarshal(body, dst); err != nil {
+		if err = json.Unmarshal(respBody, dst); err != nil {
 			return fmt.Errorf("unmarshalling response body: %v", err)
 		}
 		return nil

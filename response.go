@@ -28,16 +28,16 @@ type CompletionData struct {
 	Device          string `json:"device"`
 	BankIDIssueDate string `json:"bankIDIssueDate"`
 	StepUp          string `json:"stepUp"`
-	Signature       string `json:"signature"`    //TODO: []byte istället?
-	OcspResponse    string `json:"ocspResponse"` //TODO: OCSPResponse istället?
+	Signature       string `json:"signature"`
+	OCSPResponse    string `json:"ocspResponse"`
 	Risk            string `json:"risk"`
 }
 
-type Err400 struct {
+type err400 struct {
 	ErrorCode string `json:"errorCode"`
 	Details   string `json:"details"`
 }
 
-func (err Err400) Error() string {
+func (err err400) Error() string {
 	return fmt.Sprintf("errorCode=%s, details=%s", err.ErrorCode, err.Details)
 }

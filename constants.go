@@ -43,6 +43,16 @@ const (
 )
 
 const (
-	ProdURL = "PLACEHOLDER_PROD_URL"
-	TestURL = "PLACEHOLDER_TEST_URL"
+	ProdURL = "https://appapi2.bankid.com"
+	TestURL = "https://appapi2.test.bankid.com"
+)
+
+const (
+	ProdBankIDOnFile             = "1.2.752.78.1.1"
+	ProdBankIDOnCard             = "1.2.752.78.1.2"
+	ProdMobileBankID             = "1.2.752.78.1.5"
+	TestBankIDOnFile             = "1.2.3.4.5"
+	TestBankIDOnCard             = "1.2.3.4.10"
+	TestMobileBankID             = "1.2.3.4.25"
+	TestBankIDForSomeBankIDBanks = "1.2.752.60.1.6"
 )

@@ -1,11 +1,13 @@
 package bankid
 
-//type Service interface {
-//	Auth(context.Context, client.AuthReq) (client.AuthResp, error)
-//	Sign(context.Context, client.SignReq) (client.SignResp, error)
-//	//Payment(context.Context, client.AuthReq) (client.SignResp, error)
-//	//PhoneAuth(context.Context, client.AuthReq) (client.SignResp, error)
-//	//PhoneSign(context.Context, client.AuthReq) (client.SignResp, error)
-//	Collect(context.Context, string) (client.CollectResp, error)
-//	Cancel(context.Context, string) error
-//}
+import "context"
+
+type Client interface {
+	Auth(context.Context, string, *AuthOpts) (AuthResp, error)
+	Sign(context.Context, string, string, *SignOpts) (SignResp, error)
+	//Payment(context.Context, client.AuthReq) (client.SignResp, error)
+	//PhoneAuth(context.Context, client.AuthReq) (client.SignResp, error)
+	//PhoneSign(context.Context, client.AuthReq) (client.SignResp, error)
+	Collect(context.Context, string) (CollectResp, error)
+	Cancel(context.Context, string) error
+}

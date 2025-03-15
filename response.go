@@ -16,10 +16,17 @@ type SignResp struct {
 	QRStartSecret  string `json:"qrStartSecret"`
 }
 
+type PaymentResp struct {
+	OrderRef       string `json:"orderRef"`
+	AutoStartToken string `json:"autoStartToken"`
+	QRStartToken   string `json:"qrStartToken"`
+	QRStartSecret  string `json:"qrStartSecret"`
+}
+
 type CollectResp struct {
 	OrderRef       string          `json:"orderRef"`
 	Status         string          `json:"status"`
-	HintCode       string          `json:"hintCode,omitempty"` //TODO: Bör vara pekare?
+	HintCode       string          `json:"hintCode,omitempty"`
 	CompletionData *CompletionData `json:"completionData,omitempty"`
 }
 

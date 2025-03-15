@@ -1,24 +1,36 @@
 package bankid
 
 type AuthOpts struct {
-	App                   *App         `json:"app,omitempty"`
-	ReturnRisk            bool         `json:"returnRisk,omitempty"`
-	ReturnURL             string       `json:"returnURL,omitempty"`
-	UserNonVisibleData    string       `json:"userNonVisibleData,omitempty"`
-	UserVisibleData       string       `json:"userVisibleData,omitempty"`
-	UserVisibleDataFormat string       `json:"userVisibleDataFormat,omitempty"`
-	Web                   *Web         `json:"web,omitempty"`
-	Requirement           *Requirement `json:"requirement,omitempty"`
+	App                   *App
+	ReturnRisk            bool
+	ReturnURL             string
+	UserNonVisibleData    string
+	UserVisibleData       string
+	UserVisibleDataFormat string
+	Web                   *Web
+	Requirement           *Requirement
 }
 
 type SignOpts struct {
-	App                   *App         `json:"app,omitempty"`
-	ReturnRisk            bool         `json:"returnRisk,omitempty"`
-	ReturnURL             string       `json:"returnURL,omitempty"`
-	UserNonVisibleData    string       `json:"userNonVisibleData,omitempty"`
-	UserVisibleDataFormat string       `json:"userVisibleDataFormat,omitempty"`
-	Web                   *Web         `json:"web,omitempty"`
-	Requirement           *Requirement `json:"requirement,omitempty"`
+	App                   *App
+	ReturnRisk            bool
+	ReturnURL             string
+	UserNonVisibleData    string
+	UserVisibleDataFormat string
+	Web                   *Web
+	Requirement           *Requirement
+}
+
+type PaymenyOpts struct {
+	App                   *App
+	ReturnRisk            bool
+	ReturnURL             string
+	RiskFlags             []RiskFlag //TODO: Göra till egen typ, liksom andra
+	UserNonVisibleData    string
+	UserVisibleData       string
+	UserVisibleDataFormat string
+	Web                   *Web
+	Requirement           *Requirement
 }
 
 type App struct {
@@ -42,9 +54,25 @@ type Requirement struct {
 	PinCode             bool     `json:"pinCode,omitempty"`
 }
 
+type UserVisibleTransaction struct {
+	TransactionType string    `json:"transactionType"`
+	Recipient       Recipient `json:"recipient"`
+	Money           Money     `json:"money,omitempty"`
+	RiskWarning     string    `json:"riskWarning,omitempty"`
+}
+
+type Recipient struct {
+	Name string `json:"name"`
+}
+
+type Money struct {
+	Amount   string `json:"amount"`
+	Currency string `json:"currency"`
+}
+
 type authReq struct {
-	EndUserIP             string       `json:"endUserIp"`
 	App                   *App         `json:"app,omitempty"`
+	EndUserIP             string       `json:"endUserIp"`
 	ReturnRisk            bool         `json:"returnRisk,omitempty"`
 	ReturnURL             string       `json:"returnURL,omitempty"`
 	UserNonVisibleData    string       `json:"userNonVisibleData,omitempty"`
@@ -55,15 +83,29 @@ type authReq struct {
 }
 
 type signReq struct {
-	EndUserIP             string       `json:"endUserIp"`
 	App                   *App         `json:"app,omitempty"`
-	ReturnRisk            bool         `json:"returnRisk,omitempty"` //TODO: Lite allmän todo här. Bör strängar och booleaener som inte är obligatoriska vara pekare???
+	EndUserIP             string       `json:"endUserIp"`
+	ReturnRisk            bool         `json:"returnRisk,omitempty"`
 	ReturnURL             string       `json:"returnURL,omitempty"`
 	UserNonVisibleData    string       `json:"userNonVisibleData,omitempty"`
 	UserVisibleData       string       `json:"userVisibleData"`
 	UserVisibleDataFormat string       `json:"userVisibleDataFormat,omitempty"`
 	Web                   *Web         `json:"web,omitempty"`
 	Requirement           *Requirement `json:"requirement,omitempty"`
+}
+
+type paymentReq struct {
+	App                    *App                   `json:"app,omitempty"`
+	EndUserIP              string                 `json:"endUserIp"`
+	ReturnRisk             bool                   `json:"returnRisk,omitempty"`
+	ReturnURL              string                 `json:"returnURL,omitempty"`
+	RiskFlags              []RiskFlag             `json:"riskFlags,omitempty"`
+	UserNonVisibleData     string                 `json:"userNonVisibleData,omitempty"`
+	UserVisibleData        string                 `json:"userVisibleData"`
+	UserVisibleDataFormat  string                 `json:"userVisibleDataFormat,omitempty"`
+	UserVisibleTransaction UserVisibleTransaction `json:"userVisibleTransaction"`
+	Web                    *Web                   `json:"web,omitempty"`
+	Requirement            *Requirement           `json:"requirement,omitempty"`
 }
 
 type collectReq struct {

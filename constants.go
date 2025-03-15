@@ -47,12 +47,52 @@ const (
 	TestURL = "https://appapi2.test.bankid.com"
 )
 
+type CertificatePolicy string
+
 const (
-	ProdBankIDOnFile             = "1.2.752.78.1.1"
-	ProdBankIDOnCard             = "1.2.752.78.1.2"
-	ProdMobileBankID             = "1.2.752.78.1.5"
-	TestBankIDOnFile             = "1.2.3.4.5"
-	TestBankIDOnCard             = "1.2.3.4.10"
-	TestMobileBankID             = "1.2.3.4.25"
-	TestBankIDForSomeBankIDBanks = "1.2.752.60.1.6"
+	ProdBankIDOnFile             CertificatePolicy = "1.2.752.78.1.1"
+	ProdBankIDOnCard             CertificatePolicy = "1.2.752.78.1.2"
+	ProdMobileBankID             CertificatePolicy = "1.2.752.78.1.5"
+	TestBankIDOnFile             CertificatePolicy = "1.2.3.4.5"
+	TestBankIDOnCard             CertificatePolicy = "1.2.3.4.10"
+	TestMobileBankID             CertificatePolicy = "1.2.3.4.25"
+	TestBankIDForSomeBankIDBanks CertificatePolicy = "1.2.752.60.1.6"
+)
+
+type UserVisibleDataFormat string
+
+const (
+	Plaintext        UserVisibleDataFormat = "plaintext"
+	SimpleMarkdownV1 UserVisibleDataFormat = "simpleMarkdownV1"
+)
+
+type CardReader string
+
+const (
+	Class1 CardReader = "class1"
+	Class2 CardReader = "class2"
+)
+
+type RiskFlag string
+
+const (
+	NewCard                  RiskFlag = "newCard"
+	NewCustomer              RiskFlag = "newCustomer"
+	NewRecipient             RiskFlag = "newRecipient"
+	HighRiskRecipient        RiskFlag = "highRiskRecipient"
+	LargeAmount              RiskFlag = "largeAmount"
+	ForeignCurrency          RiskFlag = "foreignCurrency"
+	CryptoCurrencyPurchase   RiskFlag = "cryptoCurrencyPurchase"
+	MoneyTransfer            RiskFlag = "moneyTransfer"
+	OverseasTransaction      RiskFlag = "overseasTransaction"
+	RecurringPayment         RiskFlag = "recurringPayment"
+	SuspiciousPaymentPattern RiskFlag = "suspiciousPaymentPattern"
+	Other                    RiskFlag = "other"
+)
+
+type TransactionType string
+
+const (
+	Card TransactionType = "card"
+	NPA  TransactionType = "npa"
 )

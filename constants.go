@@ -96,3 +96,10 @@ const (
 	Card TransactionType = "card"
 	NPA  TransactionType = "npa"
 )
+
+type CallInitiator string
+
+const (
+	User CallInitiator = "user"
+	RP   CallInitiator = "RP"
+)

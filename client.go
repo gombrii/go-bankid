@@ -23,7 +23,7 @@ type Config struct {
 	URL        string
 }
 
-//TODO: Either test this package from the inside or create two separate constructor functions, one of which takes in the http.Client from the outside so that it's mockable. 
+//TODO: Either test this package from the inside or create two separate constructor functions, one of which takes in the http.Client from the outside so that it's mockable.
 //TODO: Make it configurable wether or not validation shoul be performed.
 
 func New(cfg Config) (BankIDClient, error) { //TODO: Denna är nog halvfärdig
@@ -106,11 +106,11 @@ func (c BankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleDat
 	return resp, nil
 }
 
-func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisibleTransaction UserVisibleTransaction, opts *PaymenyOpts) (PaymentResp, error) {
+func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisibleTransaction UserVisibleTransaction, opts *PaymentOpts) (PaymentResp, error) {
 	//TODO: Glöm inte validerin här!! :)
 
 	if opts == nil {
-		opts = &PaymenyOpts{}
+		opts = &PaymentOpts{}
 	}
 
 	req := paymentReq{
@@ -136,12 +136,54 @@ func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisible
 	return resp, nil
 }
 
-func (c BankIDClient) PhoneAuth() {
-	panic("UNIMPLEMENTED")
+func (c BankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator, opts *PhoneAuthOpts) (PhoneAuthResp, error) {
+	//TODO: Glöm inte validerin här!! :)
+
+	if opts == nil {
+		opts = &PhoneAuthOpts{}
+	}
+
+	req := phoneAuthReq{
+		CallInitiator:         callInitiator,
+		PersonalNumber:        opts.PersonalNumber,
+		UserNonVisibleData:    opts.UserNonVisibleData,
+		UserVisibleData:       opts.UserVisibleData,
+		UserVisibleDataFormat: opts.UserVisibleDataFormat,
+		Requirement:           opts.Requirement,
+	}
+
+	resp := PhoneAuthResp{}
+	err := c.send(ctx, fmt.Sprint(c.url, "/rp/v6.0/phone/auth"), req, resp)
+	if err != nil {
+		return PhoneAuthResp{}, fmt.Errorf("bankid: %v", err)
+	}
+
+	return resp, nil
 }
 
-func (c BankIDClient) PhoneSign() {
-	panic("UNIMPLEMENTED")
+func (c BankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator, userVisibleData string, opts *PhoneSignOpts) (PhoneSignResp, error) {
+	//TODO: Glöm inte validerin här!! :)
+
+	if opts == nil {
+		opts = &PhoneSignOpts{}
+	}
+
+	req := phoneSignReq{
+		CallInitiator:         callInitiator,
+		PersonalNumber:        opts.PersonalNumber,
+		UserNonVisibleData:    opts.UserNonVisibleData,
+		UserVisibleData:       userVisibleData,
+		UserVisibleDataFormat: opts.UserVisibleDataFormat,
+		Requirement:           opts.Requirement,
+	}
+
+	resp := PhoneSignResp{}
+	err := c.send(ctx, fmt.Sprint(c.url, "/rp/v6.0/phone/sign"), req, resp)
+	if err != nil {
+		return PhoneSignResp{}, fmt.Errorf("bankid: %v", err)
+	}
+
+	return resp, nil
 }
 
 func (c BankIDClient) Collect(ctx context.Context, orderRef string) (CollectResp, error) {

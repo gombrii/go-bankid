@@ -2,6 +2,8 @@ package bankid
 
 import "fmt"
 
+//TODO: Bör vissa fält i response ha egna typer för att kunna jämföra, t.ex. Status och HintCode
+
 type AuthResp struct {
 	OrderRef       string `json:"orderRef"`
 	AutoStartToken string `json:"autoStartToken"`
@@ -21,6 +23,14 @@ type PaymentResp struct {
 	AutoStartToken string `json:"autoStartToken"`
 	QRStartToken   string `json:"qrStartToken"`
 	QRStartSecret  string `json:"qrStartSecret"`
+}
+
+type PhoneAuthResp struct {
+	OrderRef string `json:"orderRef"`
+}
+
+type PhoneSignResp struct {
+	OrderRef string `json:"orderRef"`
 }
 
 type CollectResp struct {

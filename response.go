@@ -43,7 +43,7 @@ type CollectResp struct {
 type CompletionData struct {
 	User            string `json:"user"`
 	Device          string `json:"device"`
-	BankIDIssueDate string `json:"bankIDIssueDate"`
+	BankIDIssueDate string `json:"bankIdIssueDate"`
 	StepUp          string `json:"stepUp"`
 	Signature       string `json:"signature"`
 	OCSPResponse    string `json:"ocspResponse"`

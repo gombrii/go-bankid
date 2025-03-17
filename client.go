@@ -25,6 +25,10 @@ type Config struct {
 
 //TODO: Either test this package from the inside or create two separate constructor functions, one of which takes in the http.Client from the outside so that it's mockable.
 //TODO: Make it configurable wether or not validation shoul be performed.
+//TODO: Add documentation to all functions and types. The type documentation can be copied straight from developers.bankid.com
+//TODO: Hur bör man tänka kring versionsnummer. En logisk versionering hade ju varit att exakt följa API:ts versionering, men frågan är om det blir för strikt.
+// 		Risken FINNS ju att en icke-brytande förändring i API:t leder till en brytande förändring i detta bibliotek, t.ex. en ny obligatorisk parameter.
+// 		Kika på General rules > Breaking changes för att resonera kring detta designval
 
 func New(cfg Config) (BankIDClient, error) { //TODO: Denna är nog halvfärdig
 	certPool := x509.NewCertPool()

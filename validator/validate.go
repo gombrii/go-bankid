@@ -13,6 +13,7 @@ package validator
 // - krävs ett visst format skall det kontrolleras
 // - om två parametrar har en relation, t.ex. att de är ömsesidigt uteslutande, då skall det kontrolleras
 // - Parametrar som använder konstanter bör kolla att värdet tillhör något av de tillåtna värdena
+// - EN grej som faktiskt är bra att validera är skapandet av uppkopplingen, t.ex. validering av certifikaten och sånt
 // 
 // NOTE: Glöm inte att allt detta, och allt annat, skall testas
 

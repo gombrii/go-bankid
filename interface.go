@@ -3,11 +3,11 @@ package bankid
 import "context"
 
 type Client interface {
-	Auth(context.Context, string, *AuthOpts) (AuthResp, error)
-	Sign(context.Context, string, string, *SignOpts) (SignResp, error)
-	Payment(context.Context, string, UserVisibleTransaction, *PaymentOpts) (PaymentResp, error)
-	PhoneAuth(context.Context, CallInitiator, *PhoneAuthOpts) (PhoneAuthResp, error)
-	PhoneSign(context.Context, CallInitiator, string, *PhoneSignOpts) (PhoneSignResp, error)
-	Collect(context.Context, string) (CollectResp, error)
-	Cancel(context.Context, string) error
+	Auth(ctx context.Context, endUserIP string, opts *AuthOpts) (AuthResp, error)
+	Sign(ctx context.Context, endUserIP string, userVisibleData string, opts *SignOpts) (SignResp, error)
+	Payment(ctx context.Context, endUserIP string, userVisibleTransaction UserVisibleTransaction, opts *PaymentOpts) (PaymentResp, error)
+	PhoneAuth(ctx context.Context, callInitiator CallInitiator, opts *PhoneAuthOpts) (PhoneAuthResp, error)
+	PhoneSign(ctx context.Context, callInitiator CallInitiator, userVisibleData string, opts *PhoneSignOpts) (PhoneSignResp, error)
+	Collect(ctx context.Context, orderRef string) (CollectResp, error)
+	Cancel(ctx context.Context, orderRef string) error
 }

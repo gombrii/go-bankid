@@ -100,6 +100,41 @@ const (
 type CallInitiator string
 
 const (
-	User CallInitiator = "user"
-	RP   CallInitiator = "RP"
+	UserInitiator CallInitiator = "user"
+	RPInitiator   CallInitiator = "RP"
+)
+
+type Status string
+
+const (
+	Pending  Status = "pending"
+	Complete Status = "complete"
+	Failed   Status = "failed"
+)
+
+type HintCode string
+
+const (
+	OutstandingTransaction HintCode = "outstandingTransaction"
+	NoClient               HintCode = "noClient"
+	Started                HintCode = "started"
+	UserMRTD               HintCode = "userMrtd"
+	UserCallConfirm        HintCode = "userCallConfirm"
+	UserSign               HintCode = "userSign"
+	ExpiredTransaction     HintCode = "expiredTransaction"
+	CertificateErr         HintCode = "certificateErr"
+	UserCancel             HintCode = "userCancel"
+	Cancelled              HintCode = "cancelled"
+	StartFailed            HintCode = "startFailed"
+	UserDeclinedCall       HintCode = "userDeclinedCall"
+	NotSupportedByUserApp  HintCode = "notSupportedByUserApp"
+	TransactionRiskBlocked HintCode = "transactionRiskBlocked"
+)
+
+type Risk string
+
+const (
+	Low      Risk = "low"
+	Moderate Risk = "moderate"
+	High     Risk = "high"
 )

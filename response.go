@@ -2,8 +2,6 @@ package bankid
 
 import "fmt"
 
-//TODO: Bör vissa fält i response ha egna typer för att kunna jämföra, t.ex. Status och HintCode
-
 type AuthResp struct {
 	OrderRef       string `json:"orderRef"`
 	AutoStartToken string `json:"autoStartToken"`
@@ -35,19 +33,35 @@ type PhoneSignResp struct {
 
 type CollectResp struct {
 	OrderRef       string          `json:"orderRef"`
-	Status         string          `json:"status"`
-	HintCode       string          `json:"hintCode,omitempty"`
+	Status         Status          `json:"status"`
+	HintCode       HintCode        `json:"hintCode,omitempty"`
 	CompletionData *CompletionData `json:"completionData,omitempty"`
 }
 
 type CompletionData struct {
-	User            string `json:"user"`
-	Device          string `json:"device"`
-	BankIDIssueDate string `json:"bankIdIssueDate"`
-	StepUp          string `json:"stepUp"`
-	Signature       string `json:"signature"`
-	OCSPResponse    string `json:"ocspResponse"`
-	Risk            string `json:"risk"`
+	User            *User   `json:"user,omitempty"`
+	Device          *Device `json:"device,omitempty"`
+	StepUp          *StepUp `json:"stepUp,omitempty"`
+	BankIDIssueDate string  `json:"bankIdIssueDate,omitempty"`
+	Signature       string  `json:"signature,omitempty"`
+	OCSPResponse    string  `json:"ocspResponse,omitempty"`
+	Risk            Risk    `json:"risk,omitempty"`
+}
+
+type User struct {
+	PersonalNumber string `json:"personalNumber,omitempty"`
+	Name           string `json:"name,omitempty"`
+	GivenName      string `json:"givenName,omitempty"`
+	Surname        string `json:"surname,omitempty"`
+}
+
+type Device struct {
+	IPAddress string `json:"ipAddress,omitempty"`
+	UHI       string `json:"uhi,omitempty"`
+}
+
+type StepUp struct {
+	MRTD bool `json:"mrtd,omitempty"`
 }
 
 type err400 struct {

@@ -68,7 +68,7 @@ type Web struct {
 type Requirement struct {
 	CardReader          CardReader          `json:"cardReader,omitempty"` //NOTE: Speciell validering
 	CertificatePolicies []CertificatePolicy `json:"certificatePolicies,omitempty"`
-	Mrtd                bool                `json:"mrtd,omitempty"`
+	MRTD                bool                `json:"mrtd,omitempty"`
 	PersonalNumber      string              `json:"personalNumber,omitempty"` //NOTE: Speciell validering
 	PinCode             bool                `json:"pinCode,omitempty"`
 }

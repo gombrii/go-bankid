@@ -62,8 +62,8 @@ func (c BankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts
 		App:                   opts.App,
 		ReturnRisk:            opts.ReturnRisk,
 		ReturnURL:             opts.ReturnURL,
-		UserNonVisibleData:    opts.UserNonVisibleData,
-		UserVisibleData:       opts.UserVisibleData,
+		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:       opts.UserVisibleData, //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Web:                   opts.Web,
 		Requirement:           opts.Requirement,
@@ -90,8 +90,8 @@ func (c BankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleDat
 		App:                   opts.App,
 		ReturnRisk:            opts.ReturnRisk,
 		ReturnURL:             opts.ReturnURL,
-		UserNonVisibleData:    opts.UserNonVisibleData,
-		UserVisibleData:       userVisibleData,
+		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:       userVisibleData, //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Web:                   opts.Web,
 		Requirement:           opts.Requirement,
@@ -118,8 +118,8 @@ func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisible
 		App:                    opts.App,
 		ReturnRisk:             opts.ReturnRisk,
 		ReturnURL:              opts.ReturnURL,
-		UserNonVisibleData:     opts.UserNonVisibleData,
-		UserVisibleData:        opts.UserVisibleData,
+		UserNonVisibleData:     opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:        opts.UserVisibleData, //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat:  opts.UserVisibleDataFormat,
 		UserVisibleTransaction: userVisibleTransaction,
 		Web:                    opts.Web,
@@ -146,8 +146,8 @@ func (c BankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator
 	req := phoneAuthReq{
 		CallInitiator:         callInitiator,
 		PersonalNumber:        opts.PersonalNumber,
-		UserNonVisibleData:    opts.UserNonVisibleData,
-		UserVisibleData:       opts.UserVisibleData,
+		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:       opts.UserVisibleData, //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Requirement:           opts.Requirement,
 	}
@@ -171,8 +171,8 @@ func (c BankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator
 	req := phoneSignReq{
 		CallInitiator:         callInitiator,
 		PersonalNumber:        opts.PersonalNumber,
-		UserNonVisibleData:    opts.UserNonVisibleData,
-		UserVisibleData:       userVisibleData,
+		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:       userVisibleData, //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Requirement:           opts.Requirement,
 	}

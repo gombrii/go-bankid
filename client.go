@@ -18,9 +18,10 @@ type BankIDClient struct {
 }
 
 type Config struct {
-	CA         []byte
-	ClientCert []byte
 	URL        string
+	RootCA     []byte
+	ClientCert []byte
+	ClientKey  []byte
 }
 
 //TODO: Either test this package from the inside or create two separate constructor functions, one of which takes in the http.Client from the outside so that it's mockable.
@@ -30,20 +31,23 @@ type Config struct {
 // 		Risken FINNS ju att en icke-brytande förändring i API:t leder till en brytande förändring i detta bibliotek, t.ex. en ny obligatorisk parameter.
 // 		Kika på General rules > Breaking changes för att resonera kring detta designval
 
-func New(cfg Config) (BankIDClient, error) { //TODO: Denna är nog halvfärdig
-	certPool := x509.NewCertPool()
-	if ok := certPool.AppendCertsFromPEM(cfg.CA); !ok {
+func New(cfg Config) (BankIDClient, error) {
+rootCAs := x509.NewCertPool()
+	if ok := rootCAs.AppendCertsFromPEM(cfg.RootCA); !ok {
 		return BankIDClient{}, errors.New("error parsing CA cert from PEM")
+	}
+
+	cert, err := tls.X509KeyPair(cfg.ClientCert, cfg.ClientKey)
+	if err != nil {
+		return BankIDClient{}, fmt.Errorf("failed to load client certificate/key: %w", err)
 	}
 
 	client := http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				RootCAs:            certPool,
-				InsecureSkipVerify: false,
-				Certificates: []tls.Certificate{
-					{Certificate: [][]byte{cfg.ClientCert}},
-				},
+				RootCAs:            rootCAs,
+				Certificates: []tls.Certificate{cert},
+				MinVersion: tls.VersionTLS13,
 			},
 		},
 	}
@@ -67,7 +71,7 @@ func (c BankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts
 		ReturnRisk:            opts.ReturnRisk,
 		ReturnURL:             opts.ReturnURL,
 		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:       opts.UserVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:       opts.UserVisibleData,    //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Web:                   opts.Web,
 		Requirement:           opts.Requirement,
@@ -95,7 +99,7 @@ func (c BankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleDat
 		ReturnRisk:            opts.ReturnRisk,
 		ReturnURL:             opts.ReturnURL,
 		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:       userVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:       userVisibleData,         //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Web:                   opts.Web,
 		Requirement:           opts.Requirement,
@@ -123,7 +127,7 @@ func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisible
 		ReturnRisk:             opts.ReturnRisk,
 		ReturnURL:              opts.ReturnURL,
 		UserNonVisibleData:     opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:        opts.UserVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:        opts.UserVisibleData,    //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat:  opts.UserVisibleDataFormat,
 		UserVisibleTransaction: userVisibleTransaction,
 		Web:                    opts.Web,
@@ -151,7 +155,7 @@ func (c BankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator
 		CallInitiator:         callInitiator,
 		PersonalNumber:        opts.PersonalNumber,
 		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:       opts.UserVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:       opts.UserVisibleData,    //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Requirement:           opts.Requirement,
 	}
@@ -176,7 +180,7 @@ func (c BankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator
 		CallInitiator:         callInitiator,
 		PersonalNumber:        opts.PersonalNumber,
 		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:       userVisibleData, //TODO: byte64-koda åt användaren
+		UserVisibleData:       userVisibleData,         //TODO: byte64-koda åt användaren
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Requirement:           opts.Requirement,
 	}

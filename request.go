@@ -1,9 +1,5 @@
 package bankid
 
-//TODO: Kontrollera att alla jsontaggar som är frivilliga har omitempty och de andra inte har det
-
-//TODO: Bör alla fält i Opts-structar vara värden och låta pekarna ligga i Req-strictarna? Det hade gjort användningen lite trevligrae.
-
 type AuthOpts struct {
 	App                   *App
 	ReturnRisk            bool

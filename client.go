@@ -24,11 +24,8 @@ type Config struct {
 }
 
 //TODO: Either test this package from the inside or create two separate constructor functions, one of which takes in the http.Client from the outside so that it's mockable.
-//TODO: Make it configurable wether or not validation shoul be performed.
 //TODO: Add documentation to all functions and types. The type documentation can be copied straight from developers.bankid.com
-//TODO: Hur bör man tänka kring versionsnummer. En logisk versionering hade ju varit att exakt följa API:ts versionering, men frågan är om det blir för strikt.
-// 		Risken FINNS ju att en icke-brytande förändring i API:t leder till en brytande förändring i detta bibliotek, t.ex. en ny obligatorisk parameter.
-// 		Kika på General rules > Breaking changes för att resonera kring detta designval
+//TODO: Versionsnummer bör vara HELT separata från CAVAs versionsnummer, men vilken cavaversion som stöds bör vara uppenbart i README
 
 func New(cfg Config) (BankIDClient, error) {
 	rootCAs := x509.NewCertPool()
@@ -58,7 +55,9 @@ func New(cfg Config) (BankIDClient, error) {
 }
 
 func (c BankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts) (AuthResp, error) {
-	//TODO: Glöm inte validering här!! :)
+	if endUserIP == "" {
+		return AuthResp{}, errors.New("endUserIP is empty")
+	}
 
 	if opts == nil {
 		opts = &AuthOpts{}
@@ -69,8 +68,8 @@ func (c BankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts
 		App:                   opts.App,
 		ReturnRisk:            opts.ReturnRisk,
 		ReturnURL:             opts.ReturnURL,
-		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:       opts.UserVisibleData,    //TODO: byte64-koda åt användaren
+		UserNonVisibleData:    opts.UserNonVisibleData,
+		UserVisibleData:       opts.UserVisibleData,
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Web:                   opts.Web,
 		Requirement:           opts.Requirement,
@@ -86,7 +85,12 @@ func (c BankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts
 }
 
 func (c BankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleData string, opts *SignOpts) (SignResp, error) {
-	//TODO: Glöm inte validerin här!! :)
+	if endUserIP == "" {
+		return SignResp{}, errors.New("endUserIP is empty")
+	}
+	if userVisibleData == "" {
+		return SignResp{}, errors.New("userVisibleData is empty")
+	}
 
 	if opts == nil {
 		opts = &SignOpts{}
@@ -97,8 +101,8 @@ func (c BankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleDat
 		App:                   opts.App,
 		ReturnRisk:            opts.ReturnRisk,
 		ReturnURL:             opts.ReturnURL,
-		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:       userVisibleData,         //TODO: byte64-koda åt användaren
+		UserNonVisibleData:    opts.UserNonVisibleData,
+		UserVisibleData:       userVisibleData,
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Web:                   opts.Web,
 		Requirement:           opts.Requirement,
@@ -114,7 +118,15 @@ func (c BankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleDat
 }
 
 func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisibleTransaction UserVisibleTransaction, opts *PaymentOpts) (PaymentResp, error) {
-	//TODO: Glöm inte validerin här!! :)
+	if endUserIP == "" {
+		return PaymentResp{}, errors.New("endUserIP is empty")
+	}
+	if userVisibleTransaction.TransactionType == "" {
+		return PaymentResp{}, errors.New("userVisibleTransaction.TransactionType is empty")
+	}
+	if userVisibleTransaction.Recipient.Name == "" {
+		return PaymentResp{}, errors.New("userVisibleTransaction.Recipient.Name is empty")
+	}
 
 	if opts == nil {
 		opts = &PaymentOpts{}
@@ -125,8 +137,8 @@ func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisible
 		App:                    opts.App,
 		ReturnRisk:             opts.ReturnRisk,
 		ReturnURL:              opts.ReturnURL,
-		UserNonVisibleData:     opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:        opts.UserVisibleData,    //TODO: byte64-koda åt användaren
+		UserNonVisibleData:     opts.UserNonVisibleData,
+		UserVisibleData:        opts.UserVisibleData,
 		UserVisibleDataFormat:  opts.UserVisibleDataFormat,
 		UserVisibleTransaction: userVisibleTransaction,
 		Web:                    opts.Web,
@@ -144,7 +156,9 @@ func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisible
 }
 
 func (c BankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator, opts *PhoneAuthOpts) (PhoneAuthResp, error) {
-	//TODO: Glöm inte validerin här!! :)
+	if callInitiator == "" {
+		return PhoneAuthResp{}, errors.New("callInitiator is empty")
+	}
 
 	if opts == nil {
 		opts = &PhoneAuthOpts{}
@@ -153,8 +167,8 @@ func (c BankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator
 	req := phoneAuthReq{
 		CallInitiator:         callInitiator,
 		PersonalNumber:        opts.PersonalNumber,
-		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:       opts.UserVisibleData,    //TODO: byte64-koda åt användaren
+		UserNonVisibleData:    opts.UserNonVisibleData,
+		UserVisibleData:       opts.UserVisibleData,
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Requirement:           opts.Requirement,
 	}
@@ -169,7 +183,12 @@ func (c BankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator
 }
 
 func (c BankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator, userVisibleData string, opts *PhoneSignOpts) (PhoneSignResp, error) {
-	//TODO: Glöm inte validerin här!! :)
+	if callInitiator == "" {
+		return PhoneSignResp{}, errors.New("callInitiator is empty")
+	}
+	if userVisibleData == "" {
+		return PhoneSignResp{}, errors.New("userVisibleData is empty")
+	}
 
 	if opts == nil {
 		opts = &PhoneSignOpts{}
@@ -178,8 +197,8 @@ func (c BankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator
 	req := phoneSignReq{
 		CallInitiator:         callInitiator,
 		PersonalNumber:        opts.PersonalNumber,
-		UserNonVisibleData:    opts.UserNonVisibleData, //TODO: byte64-koda åt användaren
-		UserVisibleData:       userVisibleData,         //TODO: byte64-koda åt användaren
+		UserNonVisibleData:    opts.UserNonVisibleData,
+		UserVisibleData:       userVisibleData,
 		UserVisibleDataFormat: opts.UserVisibleDataFormat,
 		Requirement:           opts.Requirement,
 	}
@@ -194,7 +213,9 @@ func (c BankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator
 }
 
 func (c BankIDClient) Collect(ctx context.Context, orderRef string) (CollectResp, error) {
-	//TODO: Glöm inte validerin här!! :)
+	if orderRef == "" {
+		return CollectResp{}, errors.New("orderRef is empty")
+	}
 
 	resp := CollectResp{}
 	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/collect", c.url, SupportedVersion), collectReq{OrderRef: orderRef}, resp)
@@ -206,9 +227,11 @@ func (c BankIDClient) Collect(ctx context.Context, orderRef string) (CollectResp
 }
 
 func (c BankIDClient) Cancel(ctx context.Context, orderRef string) error {
-	//TODO: Glöm inte validerin här!! :)
+	if orderRef == "" {
+		return errors.New("orderRef is empty")
+	}
 
-	err := c.send(ctx, fmt.Sprintf( "%s/rp/%s/cancel", c.url, SupportedVersion), cancelReq{OrderRef: orderRef}, nil)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/cancel", c.url, SupportedVersion), cancelReq{OrderRef: orderRef}, nil)
 	if err != nil {
 		return fmt.Errorf("bankid: %v", err)
 	}

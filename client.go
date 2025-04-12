@@ -1,6 +1,6 @@
-// TODO: Document package
-//
 // © 2025 Simon Oscar Gombrii. Released under the MIT License.
+
+// TODO: Document package
 package bankid
 
 import (
@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-const SupportedVersion = "v6.0"
+const SupportedAPIVersion = "v6.0"
 
 type BankIDClient struct {
 	http *http.Client
@@ -57,6 +57,9 @@ func New(cfg Config) (BankIDClient, error) {
 	}, nil
 }
 
+// Auth initiates an identification order.
+//
+// Use method Collect to query the status of the order.
 func (c BankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts) (AuthResp, error) {
 	if endUserIP == "" {
 		return AuthResp{}, errors.New("endUserIP is empty")
@@ -79,7 +82,7 @@ func (c BankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts
 	}
 
 	resp := AuthResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/auth", c.url, SupportedVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/auth", c.url, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return AuthResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -112,7 +115,7 @@ func (c BankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleDat
 	}
 
 	resp := SignResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/sign", c.url, SupportedVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/sign", c.url, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return SignResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -150,7 +153,7 @@ func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisible
 	}
 
 	resp := PaymentResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/payment", c.url, SupportedVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/payment", c.url, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return PaymentResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -177,7 +180,7 @@ func (c BankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator
 	}
 
 	resp := PhoneAuthResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/phone/auth", c.url, SupportedVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/phone/auth", c.url, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return PhoneAuthResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -207,7 +210,7 @@ func (c BankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator
 	}
 
 	resp := PhoneSignResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/phone/sign", c.url, SupportedVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/phone/sign", c.url, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return PhoneSignResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -221,7 +224,7 @@ func (c BankIDClient) Collect(ctx context.Context, orderRef string) (CollectResp
 	}
 
 	resp := CollectResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/collect", c.url, SupportedVersion), collectReq{OrderRef: orderRef}, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/collect", c.url, SupportedAPIVersion), collectReq{OrderRef: orderRef}, resp)
 	if err != nil {
 		return CollectResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -234,7 +237,7 @@ func (c BankIDClient) Cancel(ctx context.Context, orderRef string) error {
 		return errors.New("orderRef is empty")
 	}
 
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/cancel", c.url, SupportedVersion), cancelReq{OrderRef: orderRef}, nil)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/cancel", c.url, SupportedAPIVersion), cancelReq{OrderRef: orderRef}, nil)
 	if err != nil {
 		return fmt.Errorf("bankid: %v", err)
 	}

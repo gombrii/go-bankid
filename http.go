@@ -1,6 +1,5 @@
-// TODO: Document package
-//
 // © 2025 Simon Oscar Gombrii. Released under the MIT License.
+
 package bankid
 
 import (

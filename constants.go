@@ -1,8 +1,8 @@
-// TODO: Document package
-//
 // © 2025 Simon Oscar Gombrii. Released under the MIT License.
+
 package bankid
 
+// Recommended user messages
 const (
 	RFA1_SWE   = "Starta BankID-appen."
 	RFA2_SWE   = "Du verkar inte ha BankID-appen. Installera den och skaffa ett BankID."
@@ -50,6 +50,10 @@ const (
 	TestURL = "https://appapi2.test.bankid.com"
 )
 
+// A CertificatePolicy restricts the method with which an identification or signing can be performed.
+// It matches the OID in certificate policies in the user certificate.
+//
+// When using one of the BankID on card policies, the cardReader requirement can be used to further restrict the type of card reader allowed. If no cardReader requirement is passed, all supported kinds of card readers are permitted.
 type CertificatePolicy string
 
 const (
@@ -62,20 +66,25 @@ const (
 	TestBankIDForSomeBankIDBanks CertificatePolicy = "1.2.752.60.1.6"
 )
 
+// UserVisibleDataFormat inticates If present and set to "simpleMarkdownV1", this parameter indicates that userVisibleData holds formatting characters.
 type UserVisibleDataFormat string
 
 const (
-	Plaintext        UserVisibleDataFormat = "plaintext"
-	SimpleMarkdownV1 UserVisibleDataFormat = "simpleMarkdownV1"
+	Plaintext        UserVisibleDataFormat = "plaintext"        // userVisibleData contains base 64 encoded text using a sub-set of UTF-8 and CR, LF or CRLF for line breaks.
+	SimpleMarkdownV1 UserVisibleDataFormat = "simpleMarkdownV1" // userVisibleData contains Simple Markdown version 1.
 )
 
+// Whether the user needs to complete the order using a card reader for the signature.
+//
+// This condition should always be combined with a certificatePolicies for a smart card to avoid undefined behaviour.
 type CardReader string
 
 const (
-	Class1 CardReader = "class1"
-	Class2 CardReader = "class2"
+	Class1 CardReader = "class1" // The order must be confirmed with a card reader where the PIN code is entered on a computer keyboard, or a card reader of higher class.
+	Class2 CardReader = "class2" // The order must be confirmed with a card reader where the PIN code is entered on the reader.
 )
 
+// A RiskFlag indicates to the risk assessment system that the payment has a higher risk or is unusual for the user.
 type RiskFlag string
 
 const (
@@ -93,30 +102,35 @@ const (
 	Other                    RiskFlag = "other"
 )
 
+// A TransactionType is the type of a transaction.
 type TransactionType string
 
 const (
-	Card TransactionType = "card"
-	NPA  TransactionType = "npa"
+	Card TransactionType = "card" // Card payment.
+	NPA  TransactionType = "npa"  // Non-payment authentication.
 )
 
+// CallInitiator indicates if the user or your organization initiated the phone call.
 type CallInitiator string
 
 const (
-	UserInitiator CallInitiator = "user"
-	RPInitiator   CallInitiator = "RP"
+	UserInitiator CallInitiator = "user" // The user called your organization.
+	RPInitiator   CallInitiator = "RP"   // Your organization called the user.
 )
 
+// Status indicates the current status of the order.
 type Status string
 
 const (
-	Pending  Status = "pending"
-	Complete Status = "complete"
-	Failed   Status = "failed"
+	Pending  Status = "pending"  // The order is being processed. hintCode describes the status of the order.
+	Complete Status = "complete" // The order is complete. completionData holds user information.
+	Failed   Status = "failed"   // Something went wrong with the order. hintCode describes the error.
 )
 
+// A HintCode is used to provide the user with details and instructions.
 type HintCode string
 
+// These hintCides declare the state when an order is pending. You should use the hintCode to provide the user with details and instructions and keep calling collect until order fails or is complete.
 const (
 	OutstandingTransaction HintCode = "outstandingTransaction"
 	NoClient               HintCode = "noClient"
@@ -124,6 +138,10 @@ const (
 	UserMRTD               HintCode = "userMrtd"
 	UserCallConfirm        HintCode = "userCallConfirm"
 	UserSign               HintCode = "userSign"
+)
+
+// These hintCodes declare the final state when an order fails. You should use the hintCode to provide the user with details and instructions. The same orderRef must not be used for additional collect requests.
+const (
 	ExpiredTransaction     HintCode = "expiredTransaction"
 	CertificateErr         HintCode = "certificateErr"
 	UserCancel             HintCode = "userCancel"
@@ -134,10 +152,15 @@ const (
 	TransactionRiskBlocked HintCode = "transactionRiskBlocked"
 )
 
+// Risk indicates the risk level of the order based on data available in the order.
+//
+// This is only returned if requested in the order, and it may be absent if the risk could not be calculated.
+//
+// If you have sent the correct endUserIp and additional data, a risk indication with the value "high" means there are signs of the channel binding being compromised, or other highly concerning circumstances..
 type Risk string
 
 const (
-	Low      Risk = "low"
-	Moderate Risk = "moderate"
-	High     Risk = "high"
+	Low      Risk = "low"      // No or low risk identified in the available order data.
+	Moderate Risk = "moderate" // Might require further action, investigation or follow-up by you based on the order data.
+	High     Risk = "high"     // The order should be blocked or cancelled by you and needs further action, investigation or follow-up. This value will only be returned if you have requested to have the risk assement to be provided, but not supplied a risk condition.
 )

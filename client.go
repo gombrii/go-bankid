@@ -15,31 +15,37 @@ import (
 // The currently supported version of the BankID API. See https://developers.bankid.com/api-references/auth--sign/overview for more information.
 const SupportedAPIVersion = "v6.0"
 
-type bankIDClient struct {
-	http *http.Client
-	url  string
+type BankIDClient struct {
+	*http.Client //TODO: Why is this embedded?
+	URL string
 }
 
 // A Config is used to configure a [bankIDClient].
 type Config struct {
-	URL        string // TODO: Denna komme förmodligen försvinna till förmån för två separata konstruktorfunktioner
 	RootCA     []byte // The root certificate authority of the BankID service.
 	ClientCert []byte // The certificate of your client. Ordered from the bank you have your BankID agreement with.
 	ClientKey  []byte // Your client certificate's private key.
 }
 
-//TODO: Either test this package from the inside or create two separate constructor functions, one of which takes in the http.Client from the outside so that it's mockable.
+// New creates a new [bankIDClient] that can be used with production BankIDs.
+func NewProd(cfg Config) (BankIDClient, error) {
+	return newClient(cfg, ProdURL)
+}	
 
-// New creates a new [bankIDClient].
-func New(cfg Config) (bankIDClient, error) {
+// New creates a new [bankIDClient] that can be used with test BankIDs.
+func NewTest(cfg Config) (BankIDClient, error) {
+	return newClient(cfg, TestURL)
+}
+
+func newClient(cfg Config, url string) (BankIDClient, error) {
 	rootCAs := x509.NewCertPool()
 	if ok := rootCAs.AppendCertsFromPEM(cfg.RootCA); !ok {
-		return bankIDClient{}, errors.New("error parsing CA cert from PEM")
+		return BankIDClient{}, errors.New("error parsing CA cert from PEM")
 	}
 
 	cert, err := tls.X509KeyPair(cfg.ClientCert, cfg.ClientKey)
 	if err != nil {
-		return bankIDClient{}, fmt.Errorf("failed to load client certificate/key: %w", err)
+		return BankIDClient{}, fmt.Errorf("failed to load client certificate/key: %w", err)
 	}
 
 	client := http.Client{
@@ -52,9 +58,9 @@ func New(cfg Config) (bankIDClient, error) {
 		},
 	}
 
-	return bankIDClient{
-		http: &client,
-		url:  cfg.URL,
+	return BankIDClient{
+		Client: &client,
+		URL:    url,
 	}, nil
 }
 
@@ -63,7 +69,7 @@ func New(cfg Config) (bankIDClient, error) {
 // endUserIP is mandatory and is the user IP address as it is seen by your service. IPv4 and IPv6 are allowed. Make sure that the IP address you include as endUserIp is the address of your end user's device, not the internal address of any reverse proxy between you and the end user. In use cases where the IP address is not available, e. g. for voice-based services, the internal representation of those systems' IP address is ok to use.
 //
 // Use opts to augument your identification order. Otherwise pass nil.
-func (c bankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts) (AuthResp, error) {
+func (c BankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts) (AuthResp, error) {
 	if endUserIP == "" {
 		return AuthResp{}, errors.New("endUserIP is empty")
 	}
@@ -85,7 +91,7 @@ func (c bankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts
 	}
 
 	resp := AuthResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/auth", c.url, SupportedAPIVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/auth", c.URL, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return AuthResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -100,7 +106,7 @@ func (c bankIDClient) Auth(ctx context.Context, endUserIP string, opts *AuthOpts
 // userVisibleData is mandatory and is the text displayed to the user during the order. The purpose is to provide context, thereby enabling the user to detect identification errors and avert fraud attempts. The text can be formatted using CR, LF and CRLF for new lines. The text must be encoded as UTF-8 and then base 64 encoded.
 //
 // Use opts to augument your identification order. Otherwise pass nil.
-func (c bankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleData string, opts *SignOpts) (SignResp, error) {
+func (c BankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleData string, opts *SignOpts) (SignResp, error) {
 	if endUserIP == "" {
 		return SignResp{}, errors.New("endUserIP is empty")
 	}
@@ -125,7 +131,7 @@ func (c bankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleDat
 	}
 
 	resp := SignResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/sign", c.url, SupportedAPIVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/sign", c.URL, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return SignResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -140,7 +146,7 @@ func (c bankIDClient) Sign(ctx context.Context, endUserIP string, userVisibleDat
 // userVisibleTransaction is mandatory and contains information about the transaction being approved.
 //
 // Use opts to augument your identification order. Otherwise pass nil.
-func (c bankIDClient) Payment(ctx context.Context, endUserIP string, userVisibleTransaction UserVisibleTransaction, opts *PaymentOpts) (PaymentResp, error) {
+func (c BankIDClient) Payment(ctx context.Context, endUserIP string, userVisibleTransaction UserVisibleTransaction, opts *PaymentOpts) (PaymentResp, error) {
 	if endUserIP == "" {
 		return PaymentResp{}, errors.New("endUserIP is empty")
 	}
@@ -170,7 +176,7 @@ func (c bankIDClient) Payment(ctx context.Context, endUserIP string, userVisible
 	}
 
 	resp := PaymentResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/payment", c.url, SupportedAPIVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/payment", c.URL, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return PaymentResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -183,7 +189,7 @@ func (c bankIDClient) Payment(ctx context.Context, endUserIP string, userVisible
 // callInitiator is mandatory and indicates if the user or your organization initiated the phone call.
 //
 // Use opts to augument your identification order. Otherwise pass nil.
-func (c bankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator, opts *PhoneAuthOpts) (PhoneAuthResp, error) {
+func (c BankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator, opts *PhoneAuthOpts) (PhoneAuthResp, error) {
 	if callInitiator == "" {
 		return PhoneAuthResp{}, errors.New("callInitiator is empty")
 	}
@@ -202,7 +208,7 @@ func (c bankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator
 	}
 
 	resp := PhoneAuthResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/phone/auth", c.url, SupportedAPIVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/phone/auth", c.URL, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return PhoneAuthResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -217,7 +223,7 @@ func (c bankIDClient) PhoneAuth(ctx context.Context, callInitiator CallInitiator
 // userVisibleData is mandatory and is the text displayed to the user during the order. The purpose is to provide context, thereby enabling the user to detect identification errors and avert fraud attempts. The text can be formatted using CR, LF and CRLF for new lines. The text must be encoded as UTF-8 and then base 64 encoded.
 //
 // Use opts to augument your identification order. Otherwise pass nil.
-func (c bankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator, userVisibleData string, opts *PhoneSignOpts) (PhoneSignResp, error) {
+func (c BankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator, userVisibleData string, opts *PhoneSignOpts) (PhoneSignResp, error) {
 	if callInitiator == "" {
 		return PhoneSignResp{}, errors.New("callInitiator is empty")
 	}
@@ -239,7 +245,7 @@ func (c bankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator
 	}
 
 	resp := PhoneSignResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/phone/sign", c.url, SupportedAPIVersion), req, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/phone/sign", c.URL, SupportedAPIVersion), req, resp)
 	if err != nil {
 		return PhoneSignResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -254,13 +260,13 @@ func (c bankIDClient) PhoneSign(ctx context.Context, callInitiator CallInitiator
 // Your service should continue calling collect every two seconds if the status reported is is pending. Your service must abort if the status is failed.
 //
 // The user identity is returned when complete.
-func (c bankIDClient) Collect(ctx context.Context, orderRef string) (CollectResp, error) {
+func (c BankIDClient) Collect(ctx context.Context, orderRef string) (CollectResp, error) {
 	if orderRef == "" {
 		return CollectResp{}, errors.New("orderRef is empty")
 	}
 
 	resp := CollectResp{}
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/collect", c.url, SupportedAPIVersion), collectReq{OrderRef: orderRef}, resp)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/collect", c.URL, SupportedAPIVersion), collectReq{OrderRef: orderRef}, resp)
 	if err != nil {
 		return CollectResp{}, fmt.Errorf("bankid: %v", err)
 	}
@@ -271,12 +277,12 @@ func (c bankIDClient) Collect(ctx context.Context, orderRef string) (CollectResp
 // Cancel cancels an ongoing signature, authentication or payment order.
 //
 // This is typically used if the user cancels the order in your service or app.
-func (c bankIDClient) Cancel(ctx context.Context, orderRef string) error {
+func (c BankIDClient) Cancel(ctx context.Context, orderRef string) error {
 	if orderRef == "" {
 		return errors.New("orderRef is empty")
 	}
 
-	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/cancel", c.url, SupportedAPIVersion), cancelReq{OrderRef: orderRef}, nil)
+	err := c.send(ctx, fmt.Sprintf("%s/rp/%s/cancel", c.URL, SupportedAPIVersion), cancelReq{OrderRef: orderRef}, nil)
 	if err != nil {
 		return fmt.Errorf("bankid: %v", err)
 	}
@@ -284,8 +290,8 @@ func (c bankIDClient) Cancel(ctx context.Context, orderRef string) error {
 	return nil
 }
 
-func (c bankIDClient) send(ctx context.Context, url string, req any, resp any) error {
-	httpResp, err := sendReq(ctx, c.http, url, req)
+func (c BankIDClient) send(ctx context.Context, url string, req any, resp any) error {
+	httpResp, err := sendReq(ctx, c.Client, url, req)
 	if err != nil {
 		return err
 	}

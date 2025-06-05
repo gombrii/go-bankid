@@ -1,6 +1,6 @@
 // © 2025 Simon Oscar Gombrii. Released under the MIT License.
 
-package bankid
+package bid
 
 import "fmt"
 
@@ -101,11 +101,11 @@ type StepUp struct {
 	MRTD bool `json:"mrtd,omitempty"` // Whether an MRTD check was performed before the order was completed.
 }
 
-type err400 struct {
+type Err400 struct {
 	ErrorCode string `json:"errorCode"`
 	Details   string `json:"details"`
 }
 
-func (err err400) Error() string {
+func (err Err400) Error() string {
 	return fmt.Sprintf("errorCode=%s, details=%s", err.ErrorCode, err.Details)
 }

@@ -1,7 +1,7 @@
 // © 2025 Simon Oscar Gombrii. Released under the MIT License.
 
 // TODO: Document package
-package bankid
+package bid
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 const SupportedAPIVersion = "v6.0"
 
 type BankIDClient struct {
-	*http.Client
+	Client *http.Client
 	URL string
 }
 

@@ -1,6 +1,6 @@
 // © 2025 Simon Oscar Gombrii. Released under the MIT License.
 
-package bankid
+package bid
 
 import "context"
 

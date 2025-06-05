@@ -1,6 +1,6 @@
 // © 2025 Simon Oscar Gombrii. Released under the MIT License.
 
-package bankid
+package bid
 
 import (
 	"bytes"
@@ -42,7 +42,7 @@ func unmarshalResp(resp *http.Response, dst any) error {
 
 	switch {
 	case resp.StatusCode == 400:
-		respErr := err400{}
+		respErr := Err400{}
 		if err = json.Unmarshal(respBody, &respErr); err != nil {
 			return fmt.Errorf("unmarshalling response body: %v", err)
 		}

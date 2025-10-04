@@ -1,6 +1,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![GitHub tag](https://img.shields.io/github/v/tag/gomsim/go-bankid)](https://github.com/gomsim/go-bankid/tags)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gomsim/go-bankid)
+[![GitHub tag](https://img.shields.io/github/v/tag/gombrii/go-bankid)](https://github.com/gombrii/go-bankid/tags)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gombrii/go-bankid)
 
 Go-bankid is a client supporting BankID's API for performing identifications, digital signatures and much more. BankID is probably norhtern Europe's largest player in the digital ID industry. It allows the user to carry a fully trusted digital ID to prove their identidy online, opening up many possibilities in digital infrastructure.
 
